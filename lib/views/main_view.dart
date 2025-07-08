@@ -3,111 +3,130 @@ import 'professor_login_view.dart';
 import 'student_login_view.dart';
 
 /// Vista principal de la aplicación
-/// Contiene los botones para navegar a los diferentes tipos de login
-class MainView extends StatelessWidget {
+/// Formato coherente con las vistas de login
+class MainView extends StatefulWidget {
   const MainView({super.key});
 
+  @override
+  State<MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('EduTrack'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Encabezado
-            Column(
-              children: [
-                Text(
-                  'BIENVENIDO A...\nEDUTRACK FIEI UNFV',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Center(
-                  child: Image.asset(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo y título
+              Column(
+                children: [
+                  const SizedBox(height: 24),
+                  Image.asset(
                     'assets/logo-unfv.png',
-                    width: 200,
+                    width: 160,
                     fit: BoxFit.contain,
                   ),
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
-
-            // Botón para login de Profesor
-            Container(
-              width: 200,
-              height: 50,
-              margin: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navegar a la vista de login de profesor
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfessorLoginView(),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'BIENVENIDO A...',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF07613),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                child: const Text(
-                  'Profesor',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'EDUTRACK FIEI UNFV',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: Color(0xFFF07613),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+              // Botón para login de Profesor
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.person_outline, size: 22),
+                  label: const Text(
+                    'Ingresar como Profesor',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfessorLoginView(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF07613),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
                   ),
                 ),
               ),
-            ),
-            
-            // Botón para login de Alumno
-            Container(
-              width: 200,
-              height: 50,
-              margin: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navegar a la vista de login de alumno
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const StudentLoginView(),
+              const SizedBox(height: 24),
+              // Botón para login de Alumno
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.school_outlined, size: 22),
+                  label: const Text(
+                    'Ingresar como Alumno',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF07613),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                child: const Text(
-                  'Alumno',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StudentLoginView(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF07613),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-} 
+}
