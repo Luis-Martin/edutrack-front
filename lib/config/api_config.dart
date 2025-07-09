@@ -11,6 +11,8 @@ class ApiConfig {
   static const String baseUrl = 'http://$serverIP:$serverPort/api';
   
   // Endpoints específicos
+  static const String courses = '/courses';
+
   static const String professorRegister = '/professor/register';
   static const String professorLogin = '/professor/login';
   static const String professorProfile = '/professor/profile';
@@ -18,6 +20,7 @@ class ApiConfig {
   static const String studentRegister = '/student/register';
   static const String studentLogin = '/student/login';
   static const String studentProfile = '/student/profile';
+  static const String studentEnrollsCourses = '/student/enrollstudent';
   
   // Headers comunes
   static const Map<String, String> defaultHeaders = {

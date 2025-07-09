@@ -103,8 +103,29 @@ class StudentController {
     }
   }
 
-  /// Método privado para enviar datos al backend (futura implementación)
-  // void _sendToBackend(Map<String, dynamic> data) {
-  //   // Implementación de la llamada HTTP al backend
-  // }
+  /// Método para optener a los cursos a los cuales está aperturado
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listStudentEnrollsCourses() async {
+    final url = ApiConfig.buildUrl(ApiConfig.studentEnrollsCourses);
+
+    print('Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      return {
+        'status': response.statusCode,
+        'content': jsonDecode(response.body),
+      };
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
 } 
