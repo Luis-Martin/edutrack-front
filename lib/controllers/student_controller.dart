@@ -23,15 +23,25 @@ class StudentController {
     print('Enviando datos de login al backend...');
     
     try {
+      print("POST to $url");
       final response = await http.post(
         Uri.parse(url),
         headers: ApiConfig.defaultHeaders,
         body: jsonEncode(studentData),
       );
 
+      final decoded = jsonDecode(response.body);
+
+      // Guardar el token como cookie en ApiConfig si el login fue exitoso
+      if (response.statusCode == 200 && decoded != null && decoded['token'] != null) {
+        // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+        ApiConfig.cookie = decoded['token'];
+        print('Cookie/token guardado en ApiConfig: ${ApiConfig.cookie}');
+      }
+
       return {
         'status': response.statusCode,
-        'content': jsonDecode(response.body),
+        'content': decoded,
       };
     } catch (error) {
       print('Error durante la conexión al servidor: $error');
@@ -42,16 +52,18 @@ class StudentController {
     }
   }
 
-  /// Método para manejar el registro (signin) del alumno
-  /// Recibe todos los datos para crear un nuevo usuario
-  Future<Map<String, dynamic>> signinStudent({
+  /// Método para manejar la actualización (PUT) del perfil del alumno
+  /// Recibe todos los datos para actualizar el usuario autenticado
+  Future<Map<String, dynamic>> updateStudentProfile({
     required String email,
     required String password,
     required String firstName,
     required String lastName,
     required String phone,
+    required String career,
+    required String yearAdmission,
   }) async {
-    print('=== INICIANDO PROCESO DE REGISTRO ALUMNO ===');
+    print('=== INICIANDO PROCESO DE ACTUALIZACIÓN DE PERFIL ALUMNO ===');
 
     // Utilizar el modelo de Student existente para crear el objeto
     Student student = Student(
@@ -60,19 +72,21 @@ class StudentController {
       firstName: firstName,
       lastName: lastName,
       phone: phone,
+      career: career,
+      yearAdmission: yearAdmission,
     );
 
     // Convertir el modelo a JSON para enviar al backend
     Map<String, dynamic> studentData = student.toJson();
 
-    final url = ApiConfig.buildUrl(ApiConfig.studentRegister);
+    final url = ApiConfig.buildUrl(ApiConfig.studentProfile);
 
-    print('Enviando datos de registro al backend...');
-    
+    print('Enviando datos de actualización al backend...');
+
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse(url),
-        headers: ApiConfig.defaultHeaders,
+        headers: ApiConfig.authHeaders,
         body: jsonEncode(studentData),
       );
 

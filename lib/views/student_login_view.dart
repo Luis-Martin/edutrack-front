@@ -1,7 +1,6 @@
 import 'package:edutrackf/views/student_profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:edutrackf/controllers/student_controller.dart';
-import 'student_singin_view.dart';
 
 /// Vista para el login de alumnos
 /// Contiene el formulario de login y se comunica con el controlador
@@ -213,25 +212,14 @@ class _StudentLoginViewState extends State<StudentLoginView> {
                     // Link a registro
                     Align(
                       alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const StudentSinginView(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Crear Cuenta',
-                          style: TextStyle(
-                            color: Color(0xFFF07613),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Color(0xFFF07613),
-                          ),
+                      child: const Text(
+                        '¿Nuevo o Olvido?\nedutrack@unfv.edu.pe',
+                        style: TextStyle(
+                          color: Color(0xFFF07613),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
+                        textAlign: TextAlign.right,
                       ),
                     ),
                   ],

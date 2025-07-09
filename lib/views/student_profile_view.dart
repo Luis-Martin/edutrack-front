@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:edutrackf/config/api_config.dart';
+import 'main_view.dart';
+import 'student_profile_update_view.dart';
 
 /// Vista para mostrar el perfil del alumno
 /// Muestra toda la información del alumno autenticado
@@ -56,7 +59,7 @@ class StudentProfileView extends StatelessWidget {
                   const SizedBox(height: 16),
                   // Nombre completo
                   Text(
-                    '${studentData['first_name']} ${studentData['last_name']}',
+                    '${studentData['first_name'] ?? ''} ${studentData['last_name'] ?? ''}',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -73,7 +76,7 @@ class StudentProfileView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'Alumno',
+                      'Alumno - Pregrado',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
@@ -90,25 +93,35 @@ class StudentProfileView extends StatelessWidget {
               title: 'Información Personal',
               children: [
                 _buildInfoCard(
+                  icon: Icons.person,
+                  title: 'Nombres',
+                  value: (studentData['first_name'] ?? 'No disponible').toString(),
+                ),
+                _buildInfoCard(
+                  icon: Icons.account_circle,
+                  title: 'Apellidos',
+                  value: (studentData['last_name'] ?? 'No disponible').toString(),
+                ),
+                _buildInfoCard(
                   icon: Icons.email,
                   title: 'Correo Electrónico',
-                  value: studentData['email'] ?? 'No disponible',
+                  value: (studentData['email'] ?? 'No disponible').toString(),
+                ),
+                _buildInfoCard(
+                  icon: Icons.school,
+                  title: 'Carrera Profesional',
+                  value: (studentData['career'] ?? 'No disponible').toString(),
+                ),
+                _buildInfoCard(
+                  icon: Icons.calendar_today,
+                  title: 'Año de Admisión',
+                  value: (studentData['year_admission'] ?? 'No disponible').toString(),
                 ),
                 _buildInfoCard(
                   icon: Icons.phone,
                   title: 'Celular',
-                  value: studentData['phone'] ?? 'No disponible',
-                ),
-                _buildInfoCard(
-                  icon: Icons.person,
-                  title: 'ID de Alumno',
-                  value: studentData['id_student']?.toString() ?? 'No disponible',
-                ),
-                _buildInfoCard(
-                  icon: Icons.account_circle,
-                  title: 'Nombre de Usuario',
-                  value: studentData['username'] ?? 'No disponible',
-                ),
+                  value: (studentData['phone'] ?? 'No disponible').toString(),
+                )
               ],
             ),
 
@@ -121,12 +134,12 @@ class StudentProfileView extends StatelessWidget {
                 _buildInfoCard(
                   icon: Icons.calendar_today,
                   title: 'Fecha de Creación',
-                  value: _formatDate(studentData['created_at']),
+                  value: _formatDate(studentData['created_at']?.toString()),
                 ),
                 _buildInfoCard(
                   icon: Icons.update,
                   title: 'Última Actualización',
-                  value: _formatDate(studentData['updated_at']),
+                  value: _formatDate(studentData['updated_at']?.toString()),
                 ),
               ],
             ),
@@ -138,14 +151,22 @@ class StudentProfileView extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implementar edición de perfil
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función de edición en desarrollo'),
-                          backgroundColor: Colors.orange,
+                    onPressed: () async {
+                      // Navegar a la vista de edición de perfil
+                      final updated = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentProfileUpdateView(studentData: studentData),
                         ),
                       );
+                      if (updated == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Perfil actualizado, recarga para ver cambios.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.edit),
                     label: const Text('Editar Perfil'),
@@ -163,12 +184,12 @@ class StudentProfileView extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // TODO: Implementar cerrar sesión
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función de cerrar sesión en desarrollo'),
-                          backgroundColor: Colors.orange,
-                        ),
+                      // Implementar cerrar sesión
+                      ApiConfig.cookie = '';
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainView()),
+                        (Route<dynamic> route) => false,
                       );
                     },
                     icon: const Icon(Icons.logout),
@@ -275,8 +296,8 @@ class StudentProfileView extends StatelessWidget {
 
   /// Obtiene las iniciales del nombre completo
   String _getInitials() {
-    final firstName = studentData['first_name'] ?? '';
-    final lastName = studentData['last_name'] ?? '';
+    final firstName = (studentData['first_name'] ?? '').toString();
+    final lastName = (studentData['last_name'] ?? '').toString();
     String initials = '';
     if (firstName.isNotEmpty) {
       initials += firstName[0].toUpperCase();
@@ -289,7 +310,7 @@ class StudentProfileView extends StatelessWidget {
 
   /// Formatea una fecha ISO a formato legible
   String _formatDate(String? dateString) {
-    if (dateString == null) return 'No disponible';
+    if (dateString == null || dateString.isEmpty) return 'No disponible';
     try {
       final date = DateTime.parse(dateString);
       return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';

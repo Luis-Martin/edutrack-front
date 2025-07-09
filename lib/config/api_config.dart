@@ -2,8 +2,8 @@
 /// Contiene las variables de conexión y endpoints del backend
 class ApiConfig {
   // IP del servidor backend
-  static const String serverIP = '192.168.54.207';
-  
+  static const String serverIP = '127.0.0.1';
+  static String cookie = '';
   // Puerto del servidor
   static const int serverPort = 8000;
   
@@ -24,6 +24,15 @@ class ApiConfig {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+
+  /// Headers para usuarios autenticados (incluye Authorization con el token)
+  static Map<String, String> get authHeaders {
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Token $cookie',
+    };
+  }
   
   /// Construye una URL completa para un endpoint específico
   static String buildUrl(String endpoint) {

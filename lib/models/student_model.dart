@@ -7,6 +7,8 @@ class Student {
   final String? firstName;
   final String? lastName;
   final String? phone;
+  final String? career;
+  final String? yearAdmission;
 
   Student({
     this.idStudent,
@@ -15,6 +17,8 @@ class Student {
     required this.firstName,
     required this.lastName,
     required this.phone,
+    required this.career,
+    required this.yearAdmission,
   });
 
   /// Convierte el modelo a un Map para enviar al backend
@@ -26,6 +30,8 @@ class Student {
       'first_name': firstName,
       'last_name': lastName,
       'phone': phone,
+      'career': career,
+      'year_admission': yearAdmission,
     };
   }
 
@@ -38,6 +44,8 @@ class Student {
       firstName: json['first_name'],
       lastName: json['last_name'],
       phone: json['phone'],
+      career: json['career'],
+      yearAdmission: json['year_admission'],
     );
   }
 } 

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import '../controllers/student_controller.dart';
-import 'student_login_view.dart';
 
-class StudentSinginView extends StatefulWidget {
-  const StudentSinginView({super.key});
+class StudentProfileUpdateView extends StatefulWidget {
+  final Map<String, dynamic> studentData;
+  const StudentProfileUpdateView({super.key, required this.studentData});
 
   @override
-  State<StudentSinginView> createState() => _StudentSinginViewState();
+  State<StudentProfileUpdateView> createState() => _StudentProfileUpdateViewState();
 }
 
-class _StudentSinginViewState extends State<StudentSinginView> {
-  final _emailController = TextEditingController();
+class _StudentProfileUpdateViewState extends State<StudentProfileUpdateView> {
   final _passwordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -19,8 +18,16 @@ class _StudentSinginViewState extends State<StudentSinginView> {
   final _studentController = StudentController();
 
   @override
+  void initState() {
+    super.initState();
+    _firstNameController.text = widget.studentData['first_name'] ?? '';
+    _lastNameController.text = widget.studentData['last_name'] ?? '';
+    _phoneController.text = widget.studentData['phone'] ?? '';
+    // No prellenar password por seguridad
+  }
+
+  @override
   void dispose() {
-    _emailController.dispose();
     _passwordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -28,48 +35,52 @@ class _StudentSinginViewState extends State<StudentSinginView> {
     super.dispose();
   }
 
-  void _handleRegister() {
-    if (_emailController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _firstNameController.text.isEmpty ||
+  void _handleUpdate() async {
+    if (_firstNameController.text.isEmpty ||
         _lastNameController.text.isEmpty ||
         _phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Por favor, complete todos los campos'),
+          content: Text('Por favor, complete todos los campos obligatorios'),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    _studentController.loginStudent(
-      email: _emailController.text,
-      password: _passwordController.text,
+    final result = await _studentController.updateStudentProfile(
+      email: widget.studentData['email'],
+      password: _passwordController.text.isNotEmpty ? _passwordController.text : widget.studentData['password'] ?? '',
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      phone: _phoneController.text,
+      career: widget.studentData['career'] ?? '',
+      yearAdmission: widget.studentData['year_admission']?.toString() ?? '',
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Registro enviado al backend (ver consola)'),
-        backgroundColor: Colors.green,
-      ),
-    );
-
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const StudentLoginView()),
-        );
-      }
-    });
+    if (result['status'] == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Perfil actualizado correctamente'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context, true); // Regresa a la vista anterior
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al actualizar: ${result['content']['error'] ?? 'Error desconocido'}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registro Alumno'),
+        title: const Text('Editar Perfil'),
         backgroundColor: const Color(0xFFF07613),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -95,11 +106,11 @@ class _StudentSinginViewState extends State<StudentSinginView> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.school, size: 48, color: Color(0xFFF07613)),
+                    child: Icon(Icons.edit, size: 48, color: Color(0xFFF07613)),
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Registro de Alumno',
+                    'Editar Perfil',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -114,7 +125,7 @@ class _StudentSinginViewState extends State<StudentSinginView> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'Crea tu cuenta',
+                      'Actualiza tu información',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
@@ -134,25 +145,6 @@ class _StudentSinginViewState extends State<StudentSinginView> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo',
-                        prefixIcon: Icon(Icons.email, color: Color(0xFFF07613)),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(
-                        labelText: 'Contraseña',
-                        prefixIcon: Icon(Icons.lock, color: Color(0xFFF07613)),
-                        border: OutlineInputBorder(),
-                      ),
-                      obscureText: true,
-                    ),                    const SizedBox(height: 16),
                     TextField(
                       controller: _firstNameController,
                       decoration: const InputDecoration(
@@ -181,11 +173,21 @@ class _StudentSinginViewState extends State<StudentSinginView> {
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 16),
+                    TextField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nueva Contraseña',
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFFF07613)),
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: _handleRegister,
+                        onPressed: _handleUpdate,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF07613),
                           foregroundColor: Colors.white,
@@ -195,34 +197,10 @@ class _StudentSinginViewState extends State<StudentSinginView> {
                           ),
                         ),
                         child: const Text(
-                          'Registrar',
+                          'Guardar Cambios',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const StudentLoginView(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Tengo Cuenta',
-                          style: TextStyle(
-                            color: Color(0xFFF07613),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Color(0xFFF07613),
                           ),
                         ),
                       ),
