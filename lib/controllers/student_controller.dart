@@ -103,7 +103,7 @@ class StudentController {
     }
   }
 
-  /// Método para optener a los cursos a los cuales está aperturado
+  /// Método para optener a los cursos a los cuales está matriculado
   // Recibe todos los curso en un array
   Future<Map<String, dynamic>> listStudentEnrollsCourses() async {
     final url = ApiConfig.buildUrl(ApiConfig.studentEnrollsCourses);
@@ -115,10 +115,21 @@ class StudentController {
         headers: ApiConfig.authHeaders,
       );
 
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      final int currentYear = DateTime.now().year;
+      
+      // Filtar los actuales
+      final filtered = body.where((course) {
+        final year = course['academic_year'];
+        return year != null && year.toString() == currentYear.toString();
+      }).toList();
+
       return {
-        'status': response.statusCode,
-        'content': jsonDecode(response.body),
-      };
+        'status': status,
+        'content': filtered,
+      };    
     } catch (error) {
       print('Error durante la conexión al servidor: $error');
       return {
@@ -128,4 +139,40 @@ class StudentController {
     }
   }
 
+  /// Método para optener a los cursos a los cuales estaba matriculado
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listStudentEnrollsPassCourses() async {
+    final url = ApiConfig.buildUrl(ApiConfig.studentEnrollsCourses);
+
+    print('Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      final int currentYear = DateTime.now().year;
+
+      // Filtrar los pasados
+      final filtered = body.where((course) {
+        final year = course['academic_year'];
+        final int? yearInt = year != null ? int.tryParse(year.toString()) : null;
+        return yearInt != null && yearInt < currentYear;
+      }).toList();
+
+      return {
+        'status': status,
+        'content': filtered,
+      };
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
 } 

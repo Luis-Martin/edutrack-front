@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import '../controllers/student_controller.dart';
 
-class StudentCoursesView extends StatefulWidget {
+class StudentPassCoursesView extends StatefulWidget {
   final Map<String, dynamic> studentData;
-  const StudentCoursesView({super.key, required this.studentData});
+  const StudentPassCoursesView({super.key, required this.studentData});
 
   @override
-  State<StudentCoursesView> createState() => _StudentCoursesViewState();
+  State<StudentPassCoursesView> createState() => _StudentPassCoursesViewState();
 }
 
-class _StudentCoursesViewState extends State<StudentCoursesView> {
+class _StudentPassCoursesViewState extends State<StudentPassCoursesView> {
   late Future<List<dynamic>> _coursesFuture;
   final _controller = StudentController();
 
@@ -20,7 +20,7 @@ class _StudentCoursesViewState extends State<StudentCoursesView> {
   }
 
   Future<List<dynamic>> _fetchCourses() async {
-    final result = await _controller.listStudentEnrollsCourses();
+    final result = await _controller.listStudentEnrollsPassCourses();
     if (result['status'] == 200 && result['content'] is List) {
       return result['content'];
     } else {
@@ -45,7 +45,7 @@ class _StudentCoursesViewState extends State<StudentCoursesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Cursos'),
+        title: const Text('Historial'),
         backgroundColor: const Color(0xFFF07613),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -111,7 +111,7 @@ class _StudentCoursesViewState extends State<StudentCoursesView> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Cursos Matriculados',
+              'Cursos Pasados',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -168,7 +168,7 @@ class _StudentCoursesViewState extends State<StudentCoursesView> {
           children: [
             Row(
               children: [
-                const Icon(Icons.book, color: Color(0xFFF07613), size: 32),
+                const Icon(Icons.book_outlined, color: Color(0xFFF07613), size: 32),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(

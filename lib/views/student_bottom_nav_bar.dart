@@ -18,8 +18,8 @@ class StudentBottomNavBar extends StatelessWidget {
           label: 'Cursos',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'Notificaciones',
+          icon: Icon(Icons.book_outlined),
+          label: 'Historial',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),

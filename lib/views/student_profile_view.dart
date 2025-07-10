@@ -3,7 +3,7 @@ import 'package:edutrackf/config/api_config.dart';
 import 'main_view.dart';
 import 'student_profile_update_view.dart';
 import 'student_courses_view.dart';
-import 'student_notifications_view.dart';
+import 'student_pass_courses_view.dart';
 import 'student_bottom_nav_bar.dart';
 
 /// Vista para mostrar el perfil del alumno
@@ -35,7 +35,7 @@ class _StudentProfileViewState extends State<StudentProfileView> {
     if (_selectedIndex == 0) {
       return StudentCoursesView(studentData: widget.studentData);
     } else if (_selectedIndex == 1) {
-      return StudentNotificationsView(studentData: widget.studentData);
+      return StudentPassCoursesView(studentData: widget.studentData);
     } else {
       return _buildProfileView();
     }
