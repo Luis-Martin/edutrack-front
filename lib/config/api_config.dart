@@ -16,11 +16,14 @@ class ApiConfig {
   static const String professorRegister = '/professor/register';
   static const String professorLogin = '/professor/login';
   static const String professorProfile = '/professor/profile';
+  static const String professorOpenCourse = '/professor/opencourse';
+  static const String professorEnrollsCourses = '/professor/enrollstudent';
   
   static const String studentRegister = '/student/register';
   static const String studentLogin = '/student/login';
   static const String studentProfile = '/student/profile';
   static const String studentEnrollsCourses = '/student/enrollstudent';
+  static const String studentNotes = '/student/note';
   
   // Headers comunes
   static const Map<String, String> defaultHeaders = {

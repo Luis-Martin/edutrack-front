@@ -240,7 +240,7 @@ class _StudentCoursesViewState extends State<StudentCoursesView> {
                     );
                   },
                   icon: const Icon(Icons.info_outline, size: 18),
-                  label: const Text('Ver detalle', style: TextStyle(fontSize: 14)),
+                  label: const Text('Detalle', style: TextStyle(fontSize: 14)),
                 ),
               ],
             ),
