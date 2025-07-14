@@ -434,10 +434,6 @@ class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
     }
   }
 
-  Color _getAttendanceColor(bool isPresent) {
-    return isPresent ? Colors.green : Colors.red;
-  }
-
   String _formatDate(String? dateString) {
     if (dateString == null) return 'Sin fecha';
     
@@ -470,5 +466,4 @@ class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
     );
   }
 
-  
-} 
+}

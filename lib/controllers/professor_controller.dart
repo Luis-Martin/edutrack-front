@@ -24,11 +24,21 @@ class ProfessorController {
     print('Enviando datos de login al backend...');
     
     try {
+      print("POST to $url");
       final response = await http.post(
         Uri.parse(url),
         headers: ApiConfig.defaultHeaders,
         body: jsonEncode(professorData),
       );
+
+      final decoded = jsonDecode(response.body);
+
+      // Guardar el token como cookie en ApiConfig si el login fue exitoso
+      if (response.statusCode == 200 && decoded != null && decoded['token'] != null) {
+        // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+        ApiConfig.cookie = decoded['token'];
+        print('Cookie/token guardado en ApiConfig: ${ApiConfig.cookie}');
+      }
 
       return {
         'status': response.statusCode,
@@ -135,8 +145,76 @@ class ProfessorController {
     }
   }
 
-  /// Método privado para enviar datos al backend (futura implementación)
-  // void _sendToBackend(Map<String, dynamic> data) {
-  //   // Implementación de la llamada HTTP al backend
-  // }
+  /// Método para optener a los cursos a los aprturados actuales
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listProfessorOpenCourses() async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorOpenCourse);
+
+    print('Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      final int currentYear = DateTime.now().year;
+      
+      // Filtar los actuales
+      final filtered = body.where((course) {
+        final year = course['academic_year'];
+        return year != null && year.toString() == currentYear.toString();
+      }).toList();
+
+      return {
+        'status': status,
+        'content': filtered,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para optener a los cursos a los aprturados pasados
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listProfessorPassOpenCourses() async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorOpenCourse);
+
+    print('Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      final int currentYear = DateTime.now().year;
+      
+      // Filtar los actuales
+      final filtered = body.where((course) {
+        final year = course['academic_year'];
+        return year != null && year < currentYear;
+      }).toList();
+
+      return {
+        'status': status,
+        'content': filtered,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
 } 
