@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:edutrackf/config/api_config.dart';
+import 'main_view.dart';
+import 'professor_profile_update_view.dart';
+import 'professor_bottom_nav_bar.dart';
+import 'professor_courses_view.dart';
+import 'professor_pass_courses_view.dart';
 
 /// Vista para mostrar el perfil del profesor
 /// Muestra toda la información del profesor autenticado
-class ProfessorProfileView extends StatelessWidget {
+class ProfessorProfileView extends StatefulWidget {
   final Map<String, dynamic> professorData;
   final String token;
 
@@ -13,7 +19,41 @@ class ProfessorProfileView extends StatelessWidget {
   });
 
   @override
+  State<ProfessorProfileView> createState() => _ProfessorProfileViewState();
+}
+
+class _ProfessorProfileViewState extends State<ProfessorProfileView> {
+  int _selectedIndex = 2; // Perfil es el índice 2 en la barra
+
+  void _onNavBarTap(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Widget _getCurrentView() {
+    if (_selectedIndex == 0) {
+      return ProfessorCoursesView(professorData: widget.professorData);
+    } else if (_selectedIndex == 1) {
+      return ProfessorPassCoursesView(professorData: widget.professorData);
+    } else {
+      return _buildProfileView();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: _getCurrentView(),
+      bottomNavigationBar: ProfessorBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavBarTap,
+      ),
+    );
+  }
+
+  Widget _buildProfileView() {
+    final professorData = widget.professorData;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil del Profesor'),
@@ -40,7 +80,6 @@ class ProfessorProfileView extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // Avatar circular
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.white,
@@ -54,9 +93,8 @@ class ProfessorProfileView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Nombre completo
                   Text(
-                    '${professorData['first_name']} ${professorData['last_name']}',
+                    '${professorData['first_name'] ?? ''} ${professorData['last_name'] ?? ''}',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -65,7 +103,6 @@ class ProfessorProfileView extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  // Rol
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
@@ -84,7 +121,6 @@ class ProfessorProfileView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
             // Información personal
             _buildSection(
               title: 'Información Personal',
@@ -111,9 +147,7 @@ class ProfessorProfileView extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
             // Información de fechas
             _buildSection(
               title: 'Información de Cuenta',
@@ -130,22 +164,27 @@ class ProfessorProfileView extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 32),
-
             // Botones de acción
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implementar edición de perfil
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función de edición en desarrollo'),
-                          backgroundColor: Colors.orange,
+                    onPressed: () async {
+                      final updated = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfessorProfileUpdateView(professorData: professorData),
                         ),
                       );
+                      if (updated == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Perfil actualizado, recarga para ver cambios.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.edit),
                     label: const Text('Editar Perfil'),
@@ -163,12 +202,11 @@ class ProfessorProfileView extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // TODO: Implementar cerrar sesión
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función de cerrar sesión en desarrollo'),
-                          backgroundColor: Colors.orange,
-                        ),
+                      ApiConfig.cookie = '';
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainView()),
+                        (Route<dynamic> route) => false,
                       );
                     },
                     icon: const Icon(Icons.logout),
@@ -191,7 +229,6 @@ class ProfessorProfileView extends StatelessWidget {
     );
   }
 
-  /// Construye una sección con título
   Widget _buildSection({
     required String title,
     required List<Widget> children,
@@ -213,7 +250,6 @@ class ProfessorProfileView extends StatelessWidget {
     );
   }
 
-  /// Construye una tarjeta de información
   Widget _buildInfoCard({
     required IconData icon,
     required String title,
@@ -261,9 +297,7 @@ class ProfessorProfileView extends StatelessWidget {
             ),
             if (isExpandable)
               IconButton(
-                onPressed: () {
-                  // TODO: Implementar expansión para mostrar token completo
-                },
+                onPressed: () {},
                 icon: const Icon(Icons.visibility),
                 color: Colors.grey,
               ),
@@ -273,11 +307,9 @@ class ProfessorProfileView extends StatelessWidget {
     );
   }
 
-  /// Obtiene las iniciales del nombre completo
   String _getInitials() {
-    final firstName = professorData['first_name'] ?? '';
-    final lastName = professorData['last_name'] ?? '';
-    
+    final firstName = (widget.professorData['first_name'] ?? '').toString();
+    final lastName = (widget.professorData['last_name'] ?? '').toString();
     String initials = '';
     if (firstName.isNotEmpty) {
       initials += firstName[0].toUpperCase();
@@ -285,14 +317,11 @@ class ProfessorProfileView extends StatelessWidget {
     if (lastName.isNotEmpty) {
       initials += lastName[0].toUpperCase();
     }
-    
     return initials.isEmpty ? 'P' : initials;
   }
 
-  /// Formatea una fecha ISO a formato legible
   String _formatDate(String? dateString) {
-    if (dateString == null) return 'No disponible';
-    
+    if (dateString == null || dateString.isEmpty) return 'No disponible';
     try {
       final date = DateTime.parse(dateString);
       return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';

@@ -90,6 +90,51 @@ class ProfessorController {
     }
   }
 
+  /// Método para manejar la actualización (PUT) del perfil del profesor
+  /// Recibe todos los datos para actualizar el usuario autenticado
+  Future<Map<String, dynamic>> updateProfessorProfile({
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+    required String phone,
+  }) async {
+    print('=== INICIANDO PROCESO DE ACTUALIZACIÓN DE PERFIL PROFESOR ===');
+
+    Professor professor = Professor(
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+    );
+
+    Map<String, dynamic> professorData = professor.toJson();
+
+    final url = ApiConfig.buildUrl(ApiConfig.professorProfile);
+
+    print('Enviando datos de actualización al backend...');
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+        body: jsonEncode(professorData),
+      );
+
+      return {
+        'status': response.statusCode,
+        'content': jsonDecode(response.body),
+      };
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
   /// Método privado para enviar datos al backend (futura implementación)
   // void _sendToBackend(Map<String, dynamic> data) {
   //   // Implementación de la llamada HTTP al backend
