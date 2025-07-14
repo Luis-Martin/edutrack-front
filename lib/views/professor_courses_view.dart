@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/professor_controller.dart';
+import 'professor_course_detail_view.dart';
 
 class ProfessorCoursesView extends StatefulWidget {
   final Map<String, dynamic> professorData;
@@ -165,7 +166,7 @@ class _ProfessorCoursesViewState extends State<ProfessorCoursesView> {
                       color: Color(0xFFF07613),
                     ),
                   ),
-                ),
+                )
               ],
             ),
             const SizedBox(height: 10),
@@ -190,6 +191,28 @@ class _ProfessorCoursesViewState extends State<ProfessorCoursesView> {
                 Text(
                   'Sección: ${course['section'] ?? '-'}',
                   style: const TextStyle(fontSize: 15),
+                ),
+                const SizedBox(width: 18),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF07613),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    minimumSize: const Size(0, 36),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfessorCourseDetailView(courseData: course),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.info_outline, size: 18),
+                  label: const Text('Detalle', style: TextStyle(fontSize: 14)),
                 ),
               ],
             ),

@@ -17,7 +17,7 @@ class _MainViewState extends State<MainView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('EduTrack'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Color(0xFFF07613),
         centerTitle: true,
         elevation: 0,
       ),
@@ -30,13 +30,13 @@ class _MainViewState extends State<MainView> {
               // Logo y título
               Column(
                 children: [
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 62),
                   Image.asset(
                     'assets/logo-unfv.png',
                     width: 160,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 62),
                   const Text(
                     'BIENVENIDO A...',
                     textAlign: TextAlign.center,
@@ -46,7 +46,7 @@ class _MainViewState extends State<MainView> {
                       letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
                   const Text(
                     'EDUTRACK FIEI UNFV',
                     textAlign: TextAlign.center,
@@ -91,7 +91,7 @@ class _MainViewState extends State<MainView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               // Botón para login de Alumno
               SizedBox(
                 width: double.infinity,

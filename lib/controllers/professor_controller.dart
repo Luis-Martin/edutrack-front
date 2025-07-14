@@ -217,4 +217,32 @@ class ProfessorController {
     }
   }
 
+  /// Método para optener a los cursos a los aprturados pasados
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listEnrrollStudents(open_course) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorOpenCourse) + '?open_course=$open_course';
+
+    print('Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
 } 
