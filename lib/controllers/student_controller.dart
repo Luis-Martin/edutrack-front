@@ -177,12 +177,12 @@ class StudentController {
   }
 
   /// Método para obtener la nota de los cursos
-  /// Recibe las notas del curso indicado por id_open_course
-  Future<Map<String, dynamic>> listNotesCourse(int id_open_course) async {
+  /// Recibe las notas del curso indicado por id_enroll_student
+  Future<Map<String, dynamic>> listNotesCourse(int id_enroll_student) async {
     // Construir la URL con el parámetro de consulta
-    final url = ApiConfig.buildUrl(ApiConfig.studentNotes) + '?id_open_course=$id_open_course';
+    final url = ApiConfig.buildUrl(ApiConfig.studentNotes) + '?id_enroll_student=$id_enroll_student';
 
-    print('Enviando solicitud de notas al backend para id_open_course: $id_open_course');
+    print('Enviando solicitud de notas al backend para id_enroll_student: $id_enroll_student');
 
     try {
       // Se envía el parámetro como query parameter en la URL
@@ -196,6 +196,46 @@ class StudentController {
 
       if (status == 200) {
         // Se espera que el backend retorne un objeto con las notas
+        return {
+          'status': status,
+          'content': body,
+        };
+      } else {
+        // Si hay error, retorna el mensaje de error del backend
+        return {
+          'status': status,
+          'content': body,
+        };
+      }
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para obtener la asistencia del estudiante
+  /// Recibe la lista de asistencias del estudiante indicado por id_enroll_student
+  Future<Map<String, dynamic>> listAttendanceCourse(int id_enroll_student) async {
+    // Construir la URL con el parámetro de consulta usando studentAttendance
+    final url = ApiConfig.buildUrl(ApiConfig.studentAttendance) + '?id_enroll_student=$id_enroll_student';
+
+    print('Enviando solicitud de asistencia al backend para id_enroll_student: $id_enroll_student');
+
+    try {
+      // Se envía el parámetro como query parameter en la URL
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      if (status == 200) {
+        // Se espera que el backend retorne una lista de asistencias
         return {
           'status': status,
           'content': body,

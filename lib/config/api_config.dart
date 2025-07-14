@@ -24,6 +24,7 @@ class ApiConfig {
   static const String studentProfile = '/student/profile';
   static const String studentEnrollsCourses = '/student/enrollstudent';
   static const String studentNotes = '/student/note';
+  static const String studentAttendance = '/student/attendance';
   
   // Headers comunes
   static const Map<String, String> defaultHeaders = {

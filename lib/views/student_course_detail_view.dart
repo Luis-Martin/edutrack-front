@@ -11,26 +11,40 @@ class StudentCourseDetailView extends StatefulWidget {
 
 class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
   late Future<Map<String, dynamic>> _notesFuture;
+  late Future<Map<String, dynamic>> _attendanceFuture;
   final _controller = StudentController();
 
   @override
   void initState() {
     super.initState();
     _notesFuture = _fetchNotes();
+    _attendanceFuture = _fetchAttendance();
   }
 
   Future<Map<String, dynamic>> _fetchNotes() async {
-    final openCourse = widget.courseData['open_course'] ?? {};
-    final idOpenCourse = openCourse['id_open_course'];
+    final idEnrollStudent = widget.courseData['id_enroll_student'];
     
-    if (idOpenCourse == null) {
+    if (idEnrollStudent == null) {
       return {
         'status': 400,
-        'content': {'error': 'ID de curso no disponible'},
+        'content': {'error': 'ID de matrícula no disponible'},
       };
     }
 
-    return await _controller.listNotesCourse(idOpenCourse);
+    return await _controller.listNotesCourse(idEnrollStudent);
+  }
+
+  Future<Map<String, dynamic>> _fetchAttendance() async {
+    final idEnrollStudent = widget.courseData['id_enroll_student'];
+    
+    if (idEnrollStudent == null) {
+      return {
+        'status': 400,
+        'content': {'error': 'ID de matrícula no disponible'},
+      };
+    }
+
+    return await _controller.listAttendanceCourse(idEnrollStudent);
   }
 
   @override
@@ -184,15 +198,91 @@ class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFF07613)),
             ),
             const SizedBox(height: 12),
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Container(
-                width: double.infinity,
-                height: 80,
-                alignment: Alignment.center,
-                child: const Text('Sin información de asistencias.'),
-              ),
+            FutureBuilder<Map<String, dynamic>>(
+              future: _attendanceFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Container(
+                      width: double.infinity,
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Container(
+                      width: double.infinity,
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Error al cargar asistencias: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  final result = snapshot.data!;
+                  if (result['status'] == 200 && result['content'] is List) {
+                    final attendance = result['content'] as List;
+                    if (attendance.isNotEmpty) {
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: attendance.map((attendanceItem) => _buildAttendanceItem(attendanceItem)).toList(),
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Container(
+                          width: double.infinity,
+                          height: 80,
+                          alignment: Alignment.center,
+                          child: const Text('No hay asistencias registradas.'),
+                        ),
+                      );
+                    }
+                  } else {
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: Container(
+                        width: double.infinity,
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Error: ${result['content']?['error'] ?? 'Error desconocido'}',
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  }
+                } else {
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Container(
+                      width: double.infinity,
+                      height: 80,
+                      alignment: Alignment.center,
+                      child: const Text('Sin información de asistencias.'),
+                    ),
+                  );
+                }
+              },
             ),
           ],
         ),
@@ -254,6 +344,83 @@ class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
     );
   }
 
+  Widget _buildAttendanceItem(Map<String, dynamic> attendanceItem) {
+    final attendance = attendanceItem['attendance'];
+    String status;
+    Color color;
+
+    // 0 = presente, 1 = ausente, 2 = tardanza
+    switch (attendance) {
+      case 0:
+        status = 'Presente';
+        color = Colors.green;
+        break;
+      case 1:
+        status = 'Ausente';
+        color = Colors.red;
+        break;
+      case 2:
+        status = 'Tardanza';
+        color = Colors.orange;
+        break;
+      default:
+        status = 'Desconocido';
+        color = Colors.grey;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _formatDate(attendanceItem['date']),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Clase del ${_formatDate(attendanceItem['date'])}',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              status,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Color _getNoteColor(dynamic noteValue) {
     if (noteValue == null) return Colors.grey;
     
@@ -265,6 +432,10 @@ class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
     } else {
       return Colors.red;
     }
+  }
+
+  Color _getAttendanceColor(bool isPresent) {
+    return isPresent ? Colors.green : Colors.red;
   }
 
   String _formatDate(String? dateString) {
@@ -298,4 +469,6 @@ class _StudentCourseDetailViewState extends State<StudentCourseDetailView> {
       ),
     );
   }
+
+  
 } 
