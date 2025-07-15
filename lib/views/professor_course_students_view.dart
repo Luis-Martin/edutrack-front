@@ -59,7 +59,7 @@ class _ProfessorCourseStudentsViewState extends State<ProfessorCourseStudentsVie
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Alumnos del Curso'),
+        title: const Text('Gestión de Alumnos'),
         backgroundColor: const Color(0xFFF07613),
         foregroundColor: Colors.white,
       ),

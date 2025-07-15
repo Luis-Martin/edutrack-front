@@ -331,12 +331,73 @@ class ProfessorController {
   // Método para matricula a alumno
   // Recibe todos los curso en un array
   Future<Map<String, dynamic>> deleteEnrrollStudent(id_open_course, id_student) async {
-    final url = ApiConfig.buildUrl(ApiConfig.professorDeleteEnrollsCourses);
+    final url = ApiConfig.buildUrl(ApiConfig.professorEnrollsCourses);
     print('[enrrollStudent] Enviando datos de actualización al backend...');
     try {
       final data = {
         "id_student": id_student,
         "id_open_course": id_open_course
+      };
+
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+        body: jsonEncode(data),
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para optener a las notas de los alumnos del un curso aperturado
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listNotesStudents(id_open_course) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorNotes) + '?id_open_course=$id_open_course';
+    print(url);
+    print('[listNotesStudents] Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para colocar nota a un estudaintes
+  Future<Map<String, dynamic>> noteStudent(id_enroll_student, type_note, note) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorNotes);
+    print('[noteStudent] Enviando datos de actualización al backend...');
+    try {
+      final data = {
+        "id_enroll_student": id_enroll_student,
+        "type_note": type_note,
+        "note": note
       };
 
       final response = await http.post(
@@ -360,4 +421,31 @@ class ProfessorController {
       };
     }
   }
+
+  /// Método para colocar nota a un estudaintes
+  Future<Map<String, dynamic>> deleteNoteStudent(id_note) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorNotes)  + '?id_note=$id_note';
+    print('[deleteNoteStudent] Enviando datos de actualización al backend...');
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
 } 

@@ -1,6 +1,7 @@
 import 'package:edutrackf/controllers/professor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:edutrackf/views/professor_course_students_view.dart';
+import 'package:edutrackf/views/professor_course_grades_view.dart';
 
 class ProfessorCourseDetailView extends StatefulWidget {
   final Map<String, dynamic> courseData;
@@ -31,8 +32,6 @@ class _ProfessorCourseDetailViewState extends State<ProfessorCourseDetailView> {
         'content': {'error': 'ID de curso aperturado'},
       };
     }
-    print("********************************************");
-    print("_controller.listEnrrollStudents");
     return await _controller.listEnrrollStudents(idOpenCOurse);
   }
 
@@ -174,7 +173,7 @@ class _ProfessorCourseDetailViewState extends State<ProfessorCourseDetailView> {
                 }
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
             // Botón para agregar alumno
             Builder(
               builder: (context) {
@@ -217,11 +216,41 @@ class _ProfessorCourseDetailViewState extends State<ProfessorCourseDetailView> {
               },
             ),
             const SizedBox(height: 24),
-            // Acciones
-            Text(
-              'Acciones',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFF07613)),
+            // Botón para ir a la vista de notas
+            FutureBuilder<Map<String, dynamic>>(
+              future: _studentFuture,
+              builder: (context, snapshot) {
+                final students = (snapshot.hasData && snapshot.data!['status'] == 200 && snapshot.data!['content'] is List)
+                  ? snapshot.data!['content'] as List
+                  : <dynamic>[];
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.grade),
+                    label: const Text('Gestionar Notas'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFF07613),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: students.isEmpty ? null : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfessorCourseGradesView(
+                            courseData: widget.courseData,
+                            students: students,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
+            const SizedBox(height: 24),
+            // Aquí genérame el botón para la vista ProfessorCourseGradesView
 
           ],
         ),
