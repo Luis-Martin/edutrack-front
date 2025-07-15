@@ -185,7 +185,7 @@ class ProfessorController {
   // Recibe todos los curso en un array
   Future<Map<String, dynamic>> listProfessorPassOpenCourses() async {
     final url = ApiConfig.buildUrl(ApiConfig.professorOpenCourse);
-
+    print(url);
     print('Enviando datos de actualización al backend...');
     try {
       final response = await http.get(
@@ -220,9 +220,9 @@ class ProfessorController {
   /// Método para optener a los cursos a los aprturados pasados
   // Recibe todos los curso en un array
   Future<Map<String, dynamic>> listEnrrollStudents(open_course) async {
-    final url = ApiConfig.buildUrl(ApiConfig.professorOpenCourse) + '?open_course=$open_course';
-
-    print('Enviando datos de actualización al backend...');
+    final url = ApiConfig.buildUrl(ApiConfig.professorEnrollsCourses) + '?open_course=$open_course';
+    print(url);
+    print('[listEnrrollStudents] Enviando datos de actualización al backend...');
     try {
       final response = await http.get(
         Uri.parse(url),
@@ -245,4 +245,119 @@ class ProfessorController {
     }
   }
 
+  /// Método para obtener los alumnos no matriculados
+  // Recibe los alumnos en un array
+  Future<Map<String, dynamic>> listNoEnrrollStudents(open_course) async {
+    final urlAllStudents = ApiConfig.buildUrl(ApiConfig.professorStudents);
+    final urlEnrroledStudents = ApiConfig.buildUrl(ApiConfig.professorEnrollsCourses) + '?open_course=$open_course';
+  
+    print('[listNoEnrrollStudents] Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(urlAllStudents),
+        headers: ApiConfig.authHeaders,
+      );
+      final allStudents = jsonDecode(response.body);
+
+      final responseEnrroll = await http.get(
+        Uri.parse(urlEnrroledStudents),
+        headers: ApiConfig.authHeaders,
+      );
+      final allEnrrollStudents = jsonDecode(responseEnrroll.body);
+
+      // Obtener los IDs de los estudiantes ya matriculados
+      final Set<int> enrolledIds = <int>{};
+      if (allEnrrollStudents is List) {
+        for (var enroll in allEnrrollStudents) {
+          final id = enroll['student'] != null ? enroll['student']['id_student'] : null;
+          if (id != null && id is int) {
+            enrolledIds.add(id);
+          }
+        }
+      }
+
+      // Filtrar los estudiantes que NO están matriculados
+      final List<dynamic> notEnrolledStudents = allStudents.where((student) {
+        final int? id = student['id_student'];
+        return id != null && !enrolledIds.contains(id);
+      }).toList();
+
+      return {
+        'status': 200,
+        'content': notEnrolledStudents,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para matricula a alumno
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> enrrollStudent(id_open_course, id_student) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorEnrollsCourses);
+    print('[enrrollStudent] Enviando datos de actualización al backend...');
+    try {
+      final data = {
+        "id_student": id_student,
+        "id_open_course": id_open_course
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+        body: jsonEncode(data),
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  // Método para matricula a alumno
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> deleteEnrrollStudent(id_open_course, id_student) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorDeleteEnrollsCourses);
+    print('[enrrollStudent] Enviando datos de actualización al backend...');
+    try {
+      final data = {
+        "id_student": id_student,
+        "id_open_course": id_open_course
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+        body: jsonEncode(data),
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
 } 
