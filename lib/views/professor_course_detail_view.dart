@@ -2,6 +2,7 @@ import 'package:edutrackf/controllers/professor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:edutrackf/views/professor_course_students_view.dart';
 import 'package:edutrackf/views/professor_course_grades_view.dart';
+import 'package:edutrackf/views/professor_course_attendance_view.dart';
 
 class ProfessorCourseDetailView extends StatefulWidget {
   final Map<String, dynamic> courseData;
@@ -250,8 +251,39 @@ class _ProfessorCourseDetailViewState extends State<ProfessorCourseDetailView> {
               },
             ),
             const SizedBox(height: 24),
-            // Aquí genérame el botón para la vista ProfessorCourseGradesView
-
+            // Botón para ir a la vista de asistencias
+            FutureBuilder<Map<String, dynamic>>(
+              future: _studentFuture,
+              builder: (context, snapshot) {
+                final students = (snapshot.hasData && snapshot.data!['status'] == 200 && snapshot.data!['content'] is List)
+                  ? snapshot.data!['content'] as List
+                  : <dynamic>[];
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.event_available),
+                    label: const Text('Gestionar Asistencias'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFF07613),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: students.isEmpty ? null : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfessorCourseAttendanceView(
+                            courseData: widget.courseData,
+                            students: students,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

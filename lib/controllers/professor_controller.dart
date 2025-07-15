@@ -448,4 +448,69 @@ class ProfessorController {
     }
   }
 
+
+  /// Método para optener a las asistencias de los alumnos del un curso aperturado
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listAttendanceStudents(id_open_course) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorAttendance) + '?id_open_course=$id_open_course';
+    print(url);
+    print('[listAttendanceStudents] Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para marcar a las asistencias de los alumnos del un curso aperturado
+  Future<Map<String, dynamic>> attendanceStudents(date, id_enroll_student, attendance) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorAttendance);
+    print(url);
+    print('[attendanceStudents] Enviando datos de actualización al backend...');
+    try {
+
+      final data = {
+        "date": date,
+        "id_enroll_student": id_enroll_student,
+        "attendance": attendance
+      };
+
+      print(data);
+      
+      final response = await http.post(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+        body: jsonEncode(data),
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
 } 

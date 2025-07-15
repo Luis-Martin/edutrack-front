@@ -20,6 +20,7 @@ class ApiConfig {
   static const String professorEnrollsCourses = '/professor/enrollstudent';
   static const String professorStudents = '/professor/students';
   static const String professorNotes = '/professor/note';
+  static const String professorAttendance = '/professor/attendance';
   
   static const String studentRegister = '/student/register';
   static const String studentLogin = '/student/login';
