@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/professor_controller.dart';
 import 'professor_course_detail_view.dart';
+import 'professor_create_course_view.dart';
 
 class ProfessorCoursesView extends StatefulWidget {
   final Map<String, dynamic> professorData;
@@ -77,6 +78,31 @@ class _ProfessorCoursesViewState extends State<ProfessorCoursesView> {
                   );
                 }
               },
+            ),
+            const SizedBox(height: 24),
+            // Créa el botón aquí
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF07613),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: Icon(Icons.add),
+                label: Text('Aperturar curso', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfessorCreateCourseView(),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

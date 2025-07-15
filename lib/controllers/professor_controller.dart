@@ -513,4 +513,112 @@ class ProfessorController {
       };
     }
   }
+
+  /// Método para optener a las asistencias de los alumnos del un curso aperturado
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> listAllCourses() async {
+    final url = ApiConfig.buildUrl(ApiConfig.courses);
+    print(url);
+    print('[listAllCourses] Enviando datos de actualización al backend...');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };    
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
+
+  /// Método para optener a las asistencias de los alumnos del un curso aperturado
+  // Recibe todos los curso en un array
+  Future<Map<String, dynamic>> openCourses(
+    id_course,
+    start_class,
+    end_class,
+    academic_year,
+    academic_semester,
+    professional_career,
+    schedule
+  ) async {
+    final url = ApiConfig.buildUrl(ApiConfig.professorOpenCourse);
+    print(url);
+    print('[openCourses] Enviando datos de actualización al backend...');
+
+    // Convertir las horas de AM/PM a formato 24h con segundos
+    List<Map<String, dynamic>> formattedSchedule = [];
+    for (var item in schedule) {
+      String convertTo24Hour(String time) {
+        // Espera formato "6:00 PM" o "8:00 AM"
+        final regExp = RegExp(r'^(\d{1,2}):(\d{2})\s*([AP]M)$', caseSensitive: false);
+        final match = regExp.firstMatch(time.trim());
+        if (match == null) return time; // fallback, no cambia
+
+        int hour = int.parse(match.group(1)!);
+        int minute = int.parse(match.group(2)!);
+        String period = match.group(3)!.toUpperCase();
+
+        if (period == 'PM' && hour != 12) {
+          hour += 12;
+        } else if (period == 'AM' && hour == 12) {
+          hour = 0;
+        }
+        // Formato "HH:mm:ss"
+        return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:00';
+      }
+
+      formattedSchedule.add({
+        'day_week': item['day_week'],
+        'start_hour': convertTo24Hour(item['start_hour']),
+        'end_hour': convertTo24Hour(item['end_hour']),
+      });
+    }
+
+    final data = {
+      "id_course": id_course,
+      "start_class": start_class,
+      "end_class": end_class,
+      "academic_year": academic_year,
+      "academic_semester": academic_semester,
+      "professional_career": professional_career,
+      "schedule": formattedSchedule
+    };
+
+    print("**********************************");
+    print(data);
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: ApiConfig.authHeaders,
+        body: jsonEncode(data),
+      );
+
+      final status = response.statusCode;
+      final body = jsonDecode(response.body);
+
+      return {
+        'status': status,
+        'content': body,
+      };
+    } catch (error) {
+      print('Error durante la conexión al servidor: $error');
+      return {
+        'status': 500,
+        'content': {'error': error.toString()},
+      };
+    }
+  }
 } 
